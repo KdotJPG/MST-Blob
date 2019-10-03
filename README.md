@@ -10,3 +10,6 @@ Inspired by [a post on /r/proceduralgeneration](https://www.reddit.com/r/procedu
 
 ## Sample result, raw output
 ![Sample image with tree shown](sample_with_tree.png?raw=true)
+
+### Usage
+* javac MSTBlob.java && java MSTBlob
