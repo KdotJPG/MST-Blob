@@ -142,7 +142,7 @@ public class MSTBlob {
 				}
 				//Union
 				for (int j = 0; j < i; j++) {
-					if (edges[j].group == groupB) edges[j].group = thisGroup;
+					if (edges[j].group == groupA || edges[j].group == groupB) edges[j].group = thisGroup;
 				}
 				newEdge.group = thisGroup;
 				tree.add(newEdge);
