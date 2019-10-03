@@ -25,7 +25,7 @@ public class MSTBlob {
 	//Change these around
 	private static final int SEED = 385926;
 	private static final int RESOLUTION = 2048;
-	private static final double POINT_MIN_SPACING = .05;
+	private static final double POINT_MIN_SPACING = 0.05;
 	private static final double KERNEL_RADIUS_MULTIPLIER = 1;
 	private static final double THRESHOLD = .4;
 	private static final boolean VIEW_POINTS = false;
@@ -41,6 +41,8 @@ public class MSTBlob {
 	//Probably don't need to change these
 	private static final double KERNEL_RADIUS = KERNEL_RADIUS_MULTIPLIER * POINT_MIN_SPACING;
 	private static final double ZOOM_OUT = (1 + KERNEL_RADIUS);
+	private static final double RENDER_POINT_THICKNESS_SQ = (1d / 256) * (POINT_MIN_SPACING / .05);
+	private static final double RENDER_EDGE_THICKNESS_SQ = (1d / 512) * (POINT_MIN_SPACING / .05);
 	private static final int N_TIMES_TO_TRY_PLACING = (int)(1 / (POINT_MIN_SPACING * POINT_MIN_SPACING));
 	
 	//Don't need to change these
@@ -115,6 +117,7 @@ public class MSTBlob {
 		
 		//Kruskal's: Generate tree
 		List<Edge> tree = new ArrayList<Edge>();
+		int treePoints = 0;
 		int groupCounter = 0;
 		for (int i = 0; i < edges.length; i++) {
 			Edge newEdge = edges[i];
@@ -140,12 +143,19 @@ public class MSTBlob {
 					thisGroup = groupCounter;
 					groupCounter++;
 				}
+				
 				//Union
 				for (int j = 0; j < i; j++) {
 					if (edges[j].group == groupA || edges[j].group == groupB) edges[j].group = thisGroup;
 				}
 				newEdge.group = thisGroup;
 				tree.add(newEdge);
+				
+				//So we can go ahead and stop once the tree is complete
+				if (treePoints >= points.length) break;
+				if (groupA == KRUSKAL_NO_GROUP) treePoints++;
+				if (groupB == KRUSKAL_NO_GROUP) treePoints++;
+				
 			} else {
 				newEdge.group = KRUSKAL_REJECTED;
 			}
@@ -169,13 +179,13 @@ public class MSTBlob {
 						double dx = p.x - xx;
 						double dy = p.y - yy;
 						double dSq = (dx * dx) + (dy * dy);
-						if (dSq < 1d/256/256) value = .75;
+						if (dSq < RENDER_POINT_THICKNESS_SQ * RENDER_POINT_THICKNESS_SQ) value = .75;
 					}
 				}
 				
 				if (VIEW_EDGES && value == 0) {
 					for (Edge edge : tree) {
-						//Distance to line segment (see if it's within our kernel)
+						//Distance to line segment
 						// https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
 						// http://paulbourke.net/geometry/pointlineplane/
 						double px = edge.b.x - edge.a.x;
@@ -187,7 +197,7 @@ public class MSTBlob {
 						double sx = edge.a.x + t * px;
 						double sy = edge.a.y + t * py;
 						double segDistSq = (xx - sx) * (xx - sx) + (yy - sy) * (yy - sy);
-						if (segDistSq < 1d/512/512) value = .5;
+						if (segDistSq < RENDER_EDGE_THICKNESS_SQ * RENDER_EDGE_THICKNESS_SQ) value = .5;
 					}
 				}
 				
