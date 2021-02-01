@@ -294,16 +294,14 @@ public class MSTBlob {
 		}
 	}
 	
-	static class Point {
-		// Yes, public members. Fight me.
-		public double x, y;
+	private static class Point {
+		double x, y;
 	}
 	
-	static class Edge {
-		// Same
-		public Point a, b;
-		public double weight;
-		public int group;
+	private static class Edge {
+		Point a, b;
+		double weight;
+		int group;
 	}
 	
 }
